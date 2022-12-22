@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 import 'package:image_picker/image_picker.dart';
 
 void main() {
@@ -39,9 +40,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String scannedText = "";
 
+  String translateText = "";
+
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    textRecognizer.close();
+    super.dispose();
   }
 
   @override
@@ -59,6 +69,9 @@ class _MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (textScanning) const CircularProgressIndicator(),
+                const SizedBox(
+                  height: 10,
+                ),
                 if (!textScanning && imageFile == null)
                   Container(
                     width: 300,
@@ -90,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.image,
                                   size: 30,
                                 ),
@@ -124,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.camera_alt,
                                   size: 30,
                                 ),
@@ -145,7 +158,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 Container(
                   child: Text(
                     scannedText,
-                    style: TextStyle(fontSize: 20),
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ),
+                Container(
+                  child: Text(
+                    translateText,
+                    style: const TextStyle(fontSize: 20),
                   ),
                 )
               ],
@@ -174,13 +193,27 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  late final TranslateLanguage sourceLanguage;
+  late final TranslateLanguage targetLanguage;
+
+  Future<void> textTranslate(String text) async {
+    final onDeviceTranslator = OnDeviceTranslator(
+        sourceLanguage: TranslateLanguage.english,
+        targetLanguage: TranslateLanguage.vietnamese);
+    final String response = await onDeviceTranslator.translateText(text);
+    print(response);
+    setState(() {
+      translateText = response;
+    });
+  }
+
   final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
 
   Future<void> getText(XFile image) async {
     final inputImage = InputImage.fromFilePath(image.path);
     final RecognizedText recognizedText = await textRecognizer
         .processImage(inputImage)
-        .timeout(Duration(seconds: 30));
+        .timeout(const Duration(seconds: 30));
 
     String text = recognizedText.text;
     for (TextBlock block in recognizedText.blocks) {
@@ -199,6 +232,8 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         scannedText = "Fail to scanned Text";
       });
+    } else {
+      textTranslate(scannedText);
     }
     setState(() {
       textScanning = false;
