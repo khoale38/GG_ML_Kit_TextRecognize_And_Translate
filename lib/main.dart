@@ -42,6 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String translateText = "";
 
+  bool isTranslate = false;
+
   @override
   void initState() {
     super.initState();
@@ -61,14 +63,12 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         title: const Text("Text Recognition example"),
       ),
-      body: Center(
-          child: SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Container(
             margin: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (textScanning) const CircularProgressIndicator(),
                 const SizedBox(
                   height: 10,
                 ),
@@ -155,21 +155,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 const SizedBox(
                   height: 20,
                 ),
-                Container(
-                  child: Text(
-                    scannedText,
-                    style: const TextStyle(fontSize: 20),
-                  ),
+                textScanning
+                    ? const CircularProgressIndicator()
+                    : Container(
+                        child: Text(
+                          scannedText,
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      ),
+                const SizedBox(
+                  height: 10,
                 ),
-                Container(
-                  child: Text(
-                    translateText,
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                )
+                isTranslate
+                    ? const CircularProgressIndicator()
+                    : Container(
+                        child: Text(
+                          translateText,
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      )
               ],
             )),
-      )),
+      ),
     );
   }
 
@@ -197,13 +204,17 @@ class _MyHomePageState extends State<MyHomePage> {
   late final TranslateLanguage targetLanguage;
 
   Future<void> textTranslate(String text) async {
+    setState(() {
+      isTranslate = true;
+    });
     final onDeviceTranslator = OnDeviceTranslator(
         sourceLanguage: TranslateLanguage.english,
         targetLanguage: TranslateLanguage.vietnamese);
     final String response = await onDeviceTranslator.translateText(text);
-    print(response);
+
     setState(() {
       translateText = response;
+      isTranslate = false;
     });
   }
 
@@ -230,7 +241,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (text == "") {
       setState(() {
-        scannedText = "Fail to scanned Text";
+        scannedText = "No Text Founds";
+        translateText = "";
       });
     } else {
       textTranslate(scannedText);
