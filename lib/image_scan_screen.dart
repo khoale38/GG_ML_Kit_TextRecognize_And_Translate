@@ -139,6 +139,14 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                 textScanning
                     ? const CircularProgressIndicator()
                     : Container(
+                        width: double.infinity,
+                        constraints: const BoxConstraints(
+                          minHeight: 150,
+                        ),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.blue)),
+                        margin: const EdgeInsets.all(15.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           scannedText,
                           style: const TextStyle(fontSize: 20),
@@ -150,8 +158,16 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                 isTranslate
                     ? const CircularProgressIndicator()
                     : Container(
+                        width: double.infinity,
+                        constraints: const BoxConstraints(
+                          minHeight: 150,
+                        ),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.blue)),
+                        margin: const EdgeInsets.all(15.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          translateText,
+                          translateText == "" ? "" : translateText,
                           style: const TextStyle(fontSize: 20),
                         ),
                       )
@@ -162,12 +178,13 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
   }
 
   void getImage(ImageSource source) async {
+    setState(() {
+      scannedText = "";
+      translateText = "";
+    });
     try {
       final pickedImage = await ImagePicker().pickImage(source: source);
       if (pickedImage != null) {
-        setState(() {
-          scannedText = "";
-        });
         textScanning = true;
         imageFile = pickedImage;
         setState(() {});
@@ -205,7 +222,7 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
     if (text == "") {
       setState(() {
         scannedText = "No Text Founds";
-        translateText = "";
+        translateText = "Khong co van ban duoc tim thay";
       });
     } else {
       setState(() {
