@@ -37,6 +37,8 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
     super.dispose();
   }
 
+  TranslateLanguage input1 = listLanguage[0];
+  TranslateLanguage input2 = listLanguage[1];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -228,7 +230,7 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
       setState(() {
         isTranslate = true;
       });
-      translateText = await textTranslate(scannedText);
+      translateText = await textTranslate(scannedText, input1, input2);
       setState(() {
         isTranslate = false;
       });
