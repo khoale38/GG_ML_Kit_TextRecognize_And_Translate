@@ -49,7 +49,6 @@ class ImageTranslateModel extends ChangeNotifier {
     final RecognizedText recognizedText = await textRecognizer
         .processImage(inputImage)
         .timeout(const Duration(seconds: 30));
-
     String text = recognizedText.text;
     for (TextBlock block in recognizedText.blocks) {
       for (TextLine line in block.lines) {
@@ -75,6 +74,21 @@ class ImageTranslateModel extends ChangeNotifier {
 
     textScanning = false;
     notifyListeners();
+  }
+
+  void setInput1(TranslateLanguage language) {
+    input1 = language;
+    notifyListeners();
+  }
+
+  void setInput2(TranslateLanguage language) {
+    input2 = language;
+    notifyListeners();
+  }
+
+  Future<void> getTranslate(String text) async {
+    final result = await textTranslate(text, input1, input2);
+    setTranslateText(result);
   }
 
 

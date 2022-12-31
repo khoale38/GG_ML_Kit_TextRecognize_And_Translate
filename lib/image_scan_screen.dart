@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:untitled/translate.dart';
 
 import 'image_translate.dart';
 
@@ -134,6 +136,59 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                           style: const TextStyle(fontSize: 20),
                         ),
                       ),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  DropdownButton<TranslateLanguage>(
+                    value: model.input1,
+                    icon: const Icon(Icons.arrow_downward),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.deepPurple),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.deepPurpleAccent,
+                    ),
+                    onChanged: (TranslateLanguage? value) {
+                      model.setInput1(value!);
+                      model.getTranslate(model.scannedText);
+
+                    },
+                    items: listLanguage.map<DropdownMenuItem<TranslateLanguage>>(
+                            (TranslateLanguage value) {
+                          return DropdownMenuItem<TranslateLanguage>(
+                            value: value,
+                            child: Text(value.name.toString()),
+                          );
+                        }).toList(),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  Text('To'),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  DropdownButton<TranslateLanguage>(
+                    value: model.input2,
+                    icon: const Icon(Icons.arrow_downward),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.deepPurple),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.deepPurpleAccent,
+                    ),
+                    onChanged: (TranslateLanguage? value) {
+                      // This is called when the user selects an item.
+                      model.setInput2(value!);
+                      model.getTranslate(model.scannedText);
+                    },
+                    items: listLanguage.map<DropdownMenuItem<TranslateLanguage>>(
+                            (TranslateLanguage value) {
+                          return DropdownMenuItem<TranslateLanguage>(
+                            value: value,
+                            child: Text(value.name.toString()),
+                          );
+                        }).toList(),
+                  )
+                ]),
                 const SizedBox(
                   height: 10,
                 ),
