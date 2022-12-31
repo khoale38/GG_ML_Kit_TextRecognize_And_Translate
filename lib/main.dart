@@ -1,21 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'home_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:untitled/home_screen.dart';
+import 'package:untitled/translate.dart';
 
 void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
-    );
-  }
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TranslateModel(),
+      child: const MaterialApp(home: HomeScreen()),
+    ),
+  );
 }

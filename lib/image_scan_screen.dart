@@ -2,10 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:google_mlkit_translation/google_mlkit_translation.dart';
+
 import 'package:image_picker/image_picker.dart';
-import 'package:untitled/utils.dart';
+import 'package:provider/provider.dart';
+
+import 'image_translate.dart';
 
 class ImageScanScreen extends StatefulWidget {
   const ImageScanScreen({Key? key}) : super(key: key);
@@ -15,32 +16,10 @@ class ImageScanScreen extends StatefulWidget {
 }
 
 class _ImageScanScreenState extends State<ImageScanScreen> {
-  bool textScanning = false;
-
-  XFile? imageFile;
-
-  String scannedText = "";
-
-  String translateText = "";
-
-  bool isTranslate = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    textRecognizer.close();
-    super.dispose();
-  }
-
-  TranslateLanguage input1 = listLanguage[0];
-  TranslateLanguage input2 = listLanguage[1];
   @override
   Widget build(BuildContext context) {
+    final model = Provider.of<ImageTranslateModel>(context, listen: true);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -55,13 +34,14 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                 const SizedBox(
                   height: 10,
                 ),
-                if (!textScanning && imageFile == null)
+                if (!model.textScanning && model.imageFile == null)
                   Container(
                     width: 300,
                     height: 300,
                     color: Colors.grey[300]!,
                   ),
-                if (imageFile != null) Image.file(File(imageFile!.path)),
+                if (model.imageFile != null)
+                  Image.file(File(model.imageFile!.path)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -78,7 +58,7 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                                 borderRadius: BorderRadius.circular(8.0)),
                           ),
                           onPressed: () {
-                            getImage(ImageSource.gallery);
+                            model.getImage(ImageSource.gallery);
                           },
                           child: Container(
                             margin: const EdgeInsets.symmetric(
@@ -112,7 +92,7 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                                 borderRadius: BorderRadius.circular(8.0)),
                           ),
                           onPressed: () {
-                            getImage(ImageSource.camera);
+                            model.getImage(ImageSource.camera);
                           },
                           child: Container(
                             margin: const EdgeInsets.symmetric(
@@ -138,7 +118,7 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                textScanning
+                model.textScanning
                     ? const CircularProgressIndicator()
                     : Container(
                         width: double.infinity,
@@ -150,14 +130,14 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                         margin: const EdgeInsets.all(15.0),
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          scannedText,
+                          model.scannedText,
                           style: const TextStyle(fontSize: 20),
                         ),
                       ),
                 const SizedBox(
                   height: 10,
                 ),
-                isTranslate
+                model.isTranslate
                     ? const CircularProgressIndicator()
                     : Container(
                         width: double.infinity,
@@ -169,7 +149,7 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                         margin: const EdgeInsets.all(15.0),
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          translateText == "" ? "" : translateText,
+                          model.translateText == "" ? "" : model.translateText,
                           style: const TextStyle(fontSize: 20),
                         ),
                       )
@@ -177,66 +157,5 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
             )),
       ),
     );
-  }
-
-  void getImage(ImageSource source) async {
-    setState(() {
-      scannedText = "";
-      translateText = "";
-    });
-    try {
-      final pickedImage = await ImagePicker().pickImage(source: source);
-      if (pickedImage != null) {
-        textScanning = true;
-        imageFile = pickedImage;
-        setState(() {});
-        getText(imageFile!).then((value) => null);
-      }
-    } catch (e) {
-      textScanning = false;
-      imageFile = null;
-      scannedText = "Error occured while scanning";
-      setState(() {});
-    }
-  }
-
-  final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-
-  Future<void> getText(XFile image) async {
-    final inputImage = InputImage.fromFilePath(image.path);
-    final RecognizedText recognizedText = await textRecognizer
-        .processImage(inputImage)
-        .timeout(const Duration(seconds: 30));
-
-    String text = recognizedText.text;
-    for (TextBlock block in recognizedText.blocks) {
-      for (TextLine line in block.lines) {
-        // Same getters as TextBlock
-        for (TextElement element in line.elements) {
-          // Same getters as TextBlock
-          setState(() {
-            scannedText = "$scannedText${element.text} ";
-          });
-        }
-      }
-    }
-
-    if (text == "") {
-      setState(() {
-        scannedText = "No Text Founds";
-        translateText = "Khong co van ban duoc tim thay";
-      });
-    } else {
-      setState(() {
-        isTranslate = true;
-      });
-      translateText = await textTranslate(scannedText, input1, input2);
-      setState(() {
-        isTranslate = false;
-      });
-    }
-    setState(() {
-      textScanning = false;
-    });
   }
 }

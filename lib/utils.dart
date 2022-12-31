@@ -9,8 +9,3 @@ Future<String> textTranslate(
   return response;
 }
 
-const List<TranslateLanguage> listLanguage = [
-  TranslateLanguage.english,
-  TranslateLanguage.vietnamese,
-  TranslateLanguage.chinese
-];
